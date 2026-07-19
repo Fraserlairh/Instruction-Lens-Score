@@ -1,0 +1,64 @@
+detectors:
+  llava-1.5-13b-hf:
+    k: 32
+    glsim_image_layer: 32
+    glsim_text_layer: 31
+    ils_image_layer: 24
+    ils_text_layer: 32
+    ils_instruction_layer: 22
+    scale: 0.1
+    bias: 2
+    context_num: 4
+    layer_list: [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]
+
+  llava-1.5-7b-hf:
+    k: 32
+    glsim_image_layer: 32
+    glsim_text_layer: 31
+    ils_image_layer: 24
+    ils_text_layer: 32
+    ils_instruction_layer: 22
+    scale: 0.1
+    bias: 2
+    context_num: 4
+    layer_list: [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]
+
+  llava-one-version1.5:
+    k: 16
+    glsim_image_layer: 36
+    glsim_text_layer: 34
+    ils_image_layer: 36
+    ils_text_layer: 34
+    ils_instruction_layer: -1
+    scale: 0.1
+    bias: 2
+    context_num: 5
+    layer_list: [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]
+
+detectors_spatial:
+  llava-1.5-13b-hf:
+    k: 32
+    image_layer: 32
+    text_layer: 31
+    scale: 0.1
+    bias: 1
+    context_num: 4
+    layer_list: [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]
+
+  llava-1.5-7b-hf:
+    k: 32
+    image_layer: 32
+    text_layer: 31
+    scale: 0.1
+    bias: 1
+    context_num: 2
+    layer_list: [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]
+
+  llava-one-version1.5:
+    k: 16
+    image_layer: 36
+    text_layer: 34
+    scale: 0.1
+    bias: 2
+    context_num: 5
+    layer_list: [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]

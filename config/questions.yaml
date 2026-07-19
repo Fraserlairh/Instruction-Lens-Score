@@ -1,0 +1,9 @@
+# Prompt templates used by evaluate.py. The key selected in evaluate.py
+# (currently QUESTIONS["prompt_o"]) determines which prompt is fed to the LVLM.
+# Only `prompt_o` is used by default; the others are kept for ablations.
+prompts:
+  prompt_s: "Detail the image."
+  prompt_d: "Please describe the given image in detail."
+  prompt_b: "Please briefly describe the given image."
+  prompt_l: "Please roughly observe the main objects in the picture, and then carefully examine all the objects in the picture. And then describing the given image in detail."
+  prompt_o: "Describe the given image in detail."
