@@ -1,4 +1,4 @@
-"""LLaVA-1.5 wrapper used by the GL_sim hallucination detector.
+"""LLaVA-1.5 wrapper.
 
 Loads a ``llava-hf/llava-1.5-*`` checkpoint and exposes :meth:`generate`, which
 runs sampling and returns the hidden states / attentions / token bookkeeping
