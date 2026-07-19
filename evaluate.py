@@ -38,7 +38,7 @@ warnings.filterwarnings("ignore")
 # ---------------------------------------------------------------------------
 # Paths (environment specific; override here for a new machine).
 # ---------------------------------------------------------------------------
-MSCOCO_VAL_DIR = "/data/yanqi/Storage/MS_COCO2014/val2014"
+MSCOCO_VAL_DIR = "YOUR_STORAGE_PATH/MS_COCO2014/val2014"
 MSCOCO_ANNOTATION_PATH = "coco_ground_truth.json"
 CHAIR_CACHE_PATH = "chair.pkl"
 
