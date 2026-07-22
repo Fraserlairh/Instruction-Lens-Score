@@ -135,6 +135,7 @@ class LLaVA(BaseLVLM):
         }
 
     def easy_generate(self, image, question, args, mask_idx=None):
+        """Function for EASY method"""
         inputs = self._build_inputs(image, question)
         input_ids = inputs["input_ids"][0]
         image_start, _ = self._image_token_span(input_ids)
