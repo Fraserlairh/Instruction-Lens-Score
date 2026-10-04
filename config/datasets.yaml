@@ -1,0 +1,19 @@
+# Benchmark configuration for evaluate.py.
+# Select with `--dataset <NAME>`. All paths are configurable: set the matching
+# environment variables (below) or edit the values directly. Relative paths are
+# resolved against the repo root; `$VAR` / `${VAR}` are expanded from the env.
+datasets:
+  MSCOCO:
+    evaluator: coco
+    val_dir: "${MSCOCO_VAL_DIR}"                 # dir with the val2014 images
+    annotation: "coco_ground_truth.json"         # jsonl: {"image","image_id"} per line
+    chair_cache: "chair.pkl"
+
+  Objects365:
+    evaluator: object365
+    val_dir: "${OBJECT365_ROOT}/val_refined/images"
+    annotation: "${OBJECT365_ROOT}/val_refined/annotations_refined.json"
+    vocab: "${OBJECT365_ROOT}/object_list_refined.txt"
+    map: "${OBJECT365_ROOT}/object_list_refined_map.tsv"
+    synonyms: "config/object365_synonyms.tsv"    # repo file, no change needed
+    gt_key: "objects_all_strict"
