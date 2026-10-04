@@ -33,6 +33,13 @@ object_list_refined.txt
 object_list_refined_map.tsv
 ```
 
+This Objects365 val split was **additionally annotated and re-screened by
+hand** (human review on top of an automatic pass), so the per-image ground
+truth is more complete than the raw release. Download:
+
+https://www.jianguoyun.com/p/DeDZ6BoQo4jODhjL_agGIAA
+
+extract the archive and point `OBJECT365_ROOT` at its `Object365/` folder.
 (You can also just edit the values in `config/datasets.yaml` instead of using
 env vars.) Then pick a benchmark with `--dataset`:
 
@@ -49,6 +56,7 @@ Useful flags: `--num_data`, `--seed`, `--max_tokens`, `--inference_temp`,
 per-dataset paths in `config/datasets.yaml`. Results go to `log/`, `figures/`
 and `storage/`. The model (`llava-hf/llava-1.5-7b-hf` by default) is downloaded
 automatically from Hugging Face.
+
 ## Acknowledgements
 
 Thanks to the authors of [GLSIM](https://github.com/deeplearning-wisc/glsim) for open-sourcing their code — part of this implementation is based on it.
