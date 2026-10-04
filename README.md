@@ -13,13 +13,42 @@ PyTorch implementation of InsLen Score (Instruction Lens Score: *Your Instructio
 pip install -r requirements.txt
 ```
 
-Before running, set the MSCOCO 2014 val image folder in `evaluate.py` (`MSCOCO_VAL_DIR`).
+### Data paths
 
-The model (`llava-hf/llava-1.5-7b-hf` by default) is downloaded automatically from Hugging Face.
+All data locations are configurable through `config/datasets.yaml`. Values may
+contain `${VAR}` placeholders, which are expanded from the environment;
+relative paths are resolved against the repo root. Set:
 
 ```bash
-python evaluate.py --lvlm llava-1.5-7b-hf --num_data 300 --seed 0
+export MSCOCO_VAL_DIR=/path/to/MS_COCO2014/val2014   # MSCOCO val2014 images
+export OBJECT365_ROOT=/path/to/Object365             # Objects365 refined set
 ```
+
+`$OBJECT365_ROOT` is expected to contain:
+
+```
+val_refined/images/*.jpg
+val_refined/annotations_refined.json
+object_list_refined.txt
+object_list_refined_map.tsv
+```
+
+(You can also just edit the values in `config/datasets.yaml` instead of using
+env vars.) Then pick a benchmark with `--dataset`:
+
+```bash
+# MSCOCO (default)
+python evaluate.py --dataset MSCOCO --lvlm llava-1.5-7b-hf --num_data 300 --seed 0
+
+# Objects365 (refined val set)
+python evaluate.py --dataset Objects365 --lvlm llava-1.5-7b-hf --num_data 300 --seed 0
+```
+
+Useful flags: `--num_data`, `--seed`, `--max_tokens`, `--inference_temp`,
+`--scale`, `-w`. Per-model detector settings live in `config/detectors.yaml`;
+per-dataset paths in `config/datasets.yaml`. Results go to `log/`, `figures/`
+and `storage/`. The model (`llava-hf/llava-1.5-7b-hf` by default) is downloaded
+automatically from Hugging Face.
 ## Acknowledgements
 
 Thanks to the authors of [GLSIM](https://github.com/deeplearning-wisc/glsim) for open-sourcing their code — part of this implementation is based on it.

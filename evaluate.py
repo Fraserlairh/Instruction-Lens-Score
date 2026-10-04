@@ -1,8 +1,9 @@
-"""Evaluate object-hallucination detection.
+"""Evaluate object-hallucination detection on a chosen benchmark.
 
-This entry point loads a dataset, runs a target LVLM to generate captions,
-applies the GL_sim detector and reports detection performance (AUROC / AUPR /
-FPR@95%TPR) for the various score types.
+A single entry point: pick the benchmark with ``--dataset`` (MSCOCO or
+Objects365). It loads the dataset config from ``config/datasets.yaml``, runs the
+target LVLM to generate captions, applies the GL_sim / Instruction-Lens detector
+and reports AUROC / AUPR / FPR@95%TPR for each score type.
 """
 
 import os
@@ -17,6 +18,7 @@ import pickle
 import warnings
 from argparse import ArgumentParser
 
+import yaml
 import numpy as np
 import torch
 from PIL import Image
@@ -31,16 +33,26 @@ from util.measuring import get_measures
 from detector.detector import compute_scores
 from lvlm import LVLM_MAP
 from util.chair import CHAIR
+from util.chair_object365 import Object365CHAIR
 from util import param_dict, QUESTIONS
 
 warnings.filterwarnings("ignore")
 
-# ---------------------------------------------------------------------------
-# Paths (environment specific; override here for a new machine).
-# ---------------------------------------------------------------------------
-MSCOCO_VAL_DIR = "YOUR_STORAGE_PATH/MS_COCO2014/val2014"
-MSCOCO_ANNOTATION_PATH = "coco_ground_truth.json"
-CHAIR_CACHE_PATH = "chair.pkl"
+REPO_ROOT = Path(__file__).resolve().parent
+
+
+def _load_datasets():
+    with open(REPO_ROOT / "config" / "datasets.yaml", encoding="utf-8") as f:
+        return yaml.safe_load(f)["datasets"]
+
+
+DATASETS = _load_datasets()
+
+
+def _resolve(path):
+    """Expand ``$VAR`` then resolve relative to the repo root (abs kept)."""
+    p = Path(os.path.expandvars(str(path)))
+    return str(p if p.is_absolute() else (REPO_ROOT / p))
 
 
 class _CHAIRUnpickler(pickle.Unpickler):
@@ -66,7 +78,9 @@ def parse_args():
         "--lvlm", type=str, default="llava-1.5-7b-hf",
         choices=list(LVLM_MAP.keys()),
     )
-    parser.add_argument("--dataset", type=str, default="MSCOCO", choices=["MSCOCO"])
+    parser.add_argument(
+        "--dataset", type=str, default="MSCOCO", choices=list(DATASETS.keys())
+    )
     parser.add_argument("--inference_temp", type=float, default=0.1)
     parser.add_argument("--sampling_temp", type=float, default=1.0)
     parser.add_argument("--sampling_time", type=int, default=5)
@@ -101,7 +115,7 @@ def read_or_save_pkl(args, path, coco_data):
     if path.exists():
         with open(path, "rb") as f:
             return pickle.load(f)
-    coco_gt = random.sample(coco_data, args.num_data)
+    coco_gt = random.sample(coco_data, min(args.num_data, len(coco_data)))
     path.parent.mkdir(parents=True, exist_ok=True)
     with open(path, "wb") as f:
         pickle.dump(coco_gt, f)
@@ -155,20 +169,51 @@ def _write_metric_row(f, name, auroc, aupr, fpr):
     f.flush()
 
 
+def build_dataset(args):
+    """Return ``(val_dir, coco_data, evaluator, question)`` for the benchmark.
+
+    ``coco_data`` is the list of ``{"image", "image_id"}`` entries the loop
+    consumes; ``evaluator`` exposes ``compute_hallucinations(img_id, cap)``.
+    """
+    cfg = DATASETS[args.dataset]
+    val_dir = _resolve(cfg["val_dir"])
+    annotation = _resolve(cfg["annotation"])
+
+    if cfg["evaluator"] == "coco":
+        evaluator = load_chair_evaluator(_resolve(cfg["chair_cache"]))
+        with open(annotation, "r") as f:
+            records = [json.loads(line) for line in f]
+    elif cfg["evaluator"] == "object365":
+        evaluator = Object365CHAIR(
+            annotation,
+            _resolve(cfg["vocab"]),
+            _resolve(cfg["map"]),
+            gt_key=cfg.get("gt_key", "objects_all_strict"),
+            synonyms_path=_resolve(cfg["synonyms"]) if cfg.get("synonyms") else None,
+        )
+        with open(annotation, encoding="utf-8") as f:
+            records = json.load(f)["images"]
+    else:
+        raise ValueError(f"Unknown evaluator: {cfg['evaluator']}")
+
+    coco_data = [{"image": r["image"], "image_id": r["image_id"]} for r in records]
+    return val_dir, coco_data, evaluator, QUESTIONS["prompt_o"]
+
+
 def main():
     args = parse_args()
     fix_seed(args.seed)
 
-    ms_coco_val_dir = MSCOCO_VAL_DIR
-    annotation_path = MSCOCO_ANNOTATION_PATH
-    evaluator = load_chair_evaluator(CHAIR_CACHE_PATH)
-    with open(annotation_path, "r") as f:
-        coco_data = [json.loads(line) for line in f]
+    for d in ("log", "figures", "storage", "data"):
+        os.makedirs(d, exist_ok=True)
+
+    val_dir, coco_data, evaluator, question = build_dataset(args)
     args.evaluator = evaluator
+    print(f"[data] dataset={args.dataset}, {len(coco_data)} entries")
 
-    question = QUESTIONS["prompt_o"]
-
-    coco_gt = read_or_save_pkl(args, f"data/{args.dataset}_data_{args.num_data}_{args.seed}.pkl", coco_data)
+    coco_gt = read_or_save_pkl(
+        args, f"data/{args.dataset}_data_{args.num_data}_{args.seed}.pkl", coco_data
+    )
 
     lvlm = obtain_lvlm(args)
 
@@ -178,8 +223,6 @@ def main():
         "top_k_cos_matrix_true", "top_k_cos_matrix_false",
         "calibrated_local_true", "calibrated_local_false",
         "context_consistency_true", "context_consistency_false",
-
-
         "mean_prob_matrix_true", "mean_prob_matrix_false",
         "svar_true", "svar_false",
     )}
@@ -196,7 +239,7 @@ def main():
     for i, entry in enumerate(tqdm(coco_gt, desc="Processing Images")):
         args.current_id = entry["image"]
         image_filename = entry["image"]
-        image_path = os.path.join(ms_coco_val_dir, image_filename)
+        image_path = os.path.join(val_dir, image_filename)
 
         if not os.path.exists(image_path):
             print(f"Warning: Image {image_filename} not found. Skipping.")
@@ -218,7 +261,7 @@ def main():
             accumulators[key] += value
 
         suffix = f"_temp_0.01_{args.lvlm}_{args.dataset}"
-        if (i + 1) % 10 == 0:
+        if (i + 1) % 10 == 0 or (i + 1) == len(coco_gt):
             if not accumulators["mean_prob_matrix_true"] or not accumulators["mean_prob_matrix_false"]:
                 continue
 
@@ -229,7 +272,7 @@ def main():
 
             auroc, aupr, fpr = get_measures(stacked["mean_prob_matrix_true"], stacked["mean_prob_matrix_false"])
             print(f"{'[Calibration Confidence]':<26} AUROC: {auroc:>9.4f} | AUPR: {aupr:>9.4f} | FPR@95% TPR: {fpr:>9.4f}")
-            if (i + 1) == args.num_data:
+            if (i + 1) == len(coco_gt):
                 _write_metric_row(metric_file, "Calibration Confidence", auroc, aupr, fpr)
 
             auroc, aupr, fpr = get_measures(stacked["context_consistency_true"], stacked["context_consistency_false"])
@@ -237,21 +280,21 @@ def main():
             plot_density(stacked["context_consistency_true"], stacked["context_consistency_false"], f"density_context_consistency{suffix}.jpeg")
             np.save(f"storage/context_consistency_result{suffix}.npy",
                     {"true_scores": stacked["context_consistency_true"], "false_scores": stacked["context_consistency_false"]})
-            if (i + 1) == args.num_data:
+            if (i + 1) == len(coco_gt):
                 _write_metric_row(metric_file, "Context Consistency", auroc, aupr, fpr)
 
             auroc, aupr, fpr = get_measures(stacked["global_cos_matrix_true"], stacked["global_cos_matrix_false"])
             print(f"{'[Global Score]':<26} AUROC: {auroc:>9.4f} | AUPR: {aupr:>9.4f} | FPR@95% TPR: {fpr:>9.4f}")
             np.save(f"storage/global_score_result{suffix}.npy",
                     {"true_scores": stacked["global_cos_matrix_true"], "false_scores": stacked["global_cos_matrix_false"]})
-            if (i + 1) == args.num_data:
+            if (i + 1) == len(coco_gt):
                 _write_metric_row(metric_file, "Global Score", auroc, aupr, fpr)
 
             auroc, aupr, fpr = get_measures(stacked["top_k_cos_matrix_true"], stacked["top_k_cos_matrix_false"])
             print(f"{'[Local Score]':<26} AUROC: {auroc:>9.4f} | AUPR: {aupr:>9.4f} | FPR@95% TPR: {fpr:>9.4f}")
             np.save(f"storage/local_score_result{suffix}.npy",
                     {"true_scores": stacked["top_k_cos_matrix_true"], "false_scores": stacked["top_k_cos_matrix_false"]})
-            if (i + 1) == args.num_data:
+            if (i + 1) == len(coco_gt):
                 _write_metric_row(metric_file, "Local Score", auroc, aupr, fpr)
 
             auroc, aupr, fpr = get_measures(
@@ -260,7 +303,7 @@ def main():
             np.save(f"storage/calibrated_local_result{suffix}.npy",
                     {"true_scores": stacked["calibrated_local_true"],
                      "false_scores": stacked["calibrated_local_false"]})
-            if (i + 1) == args.num_data:
+            if (i + 1) == len(coco_gt):
                 _write_metric_row(metric_file, "calibrated local", auroc, aupr, fpr)
 
             auroc, aupr, fpr = get_measures(
@@ -268,7 +311,7 @@ def main():
                 args.w * stacked["global_cos_matrix_false"] + (1 - args.w) * stacked["top_k_cos_matrix_false"],
             )
             print(f"{'[GLSIM]':<26} AUROC: {auroc:>9.4f} | AUPR: {aupr:>9.4f} | FPR@95% TPR: {fpr:>9.4f}")
-            if (i + 1) == args.num_data:
+            if (i + 1) == len(coco_gt):
                 _write_metric_row(metric_file, "GLSIM", auroc, aupr, fpr)
 
             w = 0.4
@@ -277,14 +320,14 @@ def main():
                 (1 - w) * stacked["calibrated_local_false"] + w * stacked["context_consistency_false"],
             )
             print(f"{'[Instruction Lens Score]':<26} AUROC: {auroc:>9.4f} | AUPR: {aupr:>9.4f} | FPR@95% TPR: {fpr:>9.4f}")
-            if (i + 1) == args.num_data:
+            if (i + 1) == len(coco_gt):
                 _write_metric_row(metric_file, "Instruction Lens Score", auroc, aupr, fpr)
 
             auroc, aupr, fpr = get_measures(stacked["svar_true"], stacked["svar_false"])
             print(f"{'[SVAR]':<26} AUROC: {auroc:>9.4f} | AUPR: {aupr:>9.4f} | FPR@95% TPR: {fpr:>9.4f}")
             np.save(f"storage/svar_result{suffix}.npy",
                     {"true_scores": stacked["svar_true"], "false_scores": stacked["svar_false"]})
-            if (i + 1) == args.num_data:
+            if (i + 1) == len(coco_gt):
                 _write_metric_row(metric_file, "SVAR", auroc, aupr, fpr)
 
     # ---- metric log footer (timing) --------------------------------------
@@ -294,6 +337,7 @@ def main():
     metric_file.write(f"{'elapsed':<16}: {run_end - run_start:.1f} s\n")
     metric_file.write("=" * 64 + "\n")
     metric_file.close()
+    print(f"[done] metrics -> {metric_path}")
 
 
 if __name__ == "__main__":

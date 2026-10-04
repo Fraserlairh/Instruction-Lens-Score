@@ -1,0 +1,183 @@
+# Objects365 synonym table, written in the MSCOCO-CHAIR (chair.py synonyms_txt) style.
+# Each line = one class: the FIRST name is the canonical class, taken verbatim from
+# object_list_refined.txt, followed by its synonyms (comma-separated).
+# Every synonym belongs to exactly ONE class, so two different classes are never conflated.
+
+Person, person, people, man, woman, boy, girl, kid, child, children, baby, adult, pedestrian, guy, lady, gentleman, player
+Other Shoes, shoe, sneaker, boot, sandal, slipper, loafer, trainer, flip flop, high heel, footwear
+Wild Bird, seagull, sparrow, robin, owl, eagle, hawk, falcon, heron, pelican, woodpecker, crow, magpie, flamingo, peacock
+Other Fish, trout, salmon, tuna, carp, koi
+Cat, kitten, kitty
+Dog, puppy, pup
+Horse, pony, stallion, foal, colt
+Cow, cattle, bull, calf, ox
+Sheep, lamb, ewe, ram
+Pig, hog, piglet, boar
+Lion, lioness, tiger, leopard
+Rabbit, bunny, hare
+Deer, fawn, stag, doe
+Monkey, monkey
+Elephant, elephant
+Dolphin, dolphin
+Crab, crab
+Lobster, lobster
+Shrimp, shrimp, prawn
+Jellyfish, jellyfish
+Oyster, oyster
+Scallop, scallop
+Car, automobile, auto, sedan, coupe, hatchback, taxi, cab, taxicab, limo, limousine
+Truck, lorry, dump truck, box truck
+Bus, minibus, school bus
+Train, locomotive, subway
+Airplane, plane, aeroplane, aircraft, jet, jetliner, airliner
+Helicopter, chopper
+Boat, vessel, yacht, canoe, kayak, dinghy, motorboat, speedboat, rowboat, sail boat
+Bicycle, bike, cycle, pushbike, road bike, mountain bike
+Motorcycle, motorbike, motor cycle, motor bike
+Stroller, pram, pushchair, baby stroller
+Trolley, shopping cart, grocery cart
+Carriage, travelator, handcart
+Fire Hydrant, fire hydrant, hydrant
+Couch, sofa, settee, loveseat, futon, armchair, divan
+Pillow, cushion
+Cabinet, cupboard, wardrobe, closet, locker
+Storage box, storage container, cardboard box
+Chair, dining chair, office chair
+Bed, bunk bed
+Dinning Table, coffee table, side table
+Carpet, rug, mat
+Vase, vase
+Potted Plant, flowerpot, houseplant, pot plant, plant pot
+Awning, canopy, sunshade
+Hanger, clothes hanger, coat hanger
+Lamp, table lamp, desk lamp, floor lamp, chandelier
+Street Lights, streetlight, streetlamp, street lamp
+Clock, wall clock, alarm clock
+Watch, wristwatch, wrist watch
+Refrigerator, fridge, freezer, fridge freezer
+Washing Machine, washer
+Drying Machine, dryer, clothes dryer
+Air Conditioner, air conditioning, aircon, ac unit
+Fan, electric fan, ceiling fan
+Microwave, microwave oven
+Hair Dryer, blow dryer, hairdryer, hair drier
+Coffee Machine, coffee maker, espresso machine
+Gas stove, stove, cooktop, stovetop
+Induction Cooker, induction stove
+Electric Drill, drill, power drill
+Chainsaw, chain saw
+TV, television, telly, televison
+Moniter, monitor
+Computer Box, computer case, pc case, cpu case
+Laptop, laptop computer, notebook computer, macbook
+Tablet, ipad
+Keyboard, computer keyboard
+Mouse, computer mouse
+Camera, digital camera, webcam, dslr
+Speaker, loudspeaker, sound box
+Head Phone, headphones, headset, earphone, earphones, earbuds
+Microphone, mic
+Remote, remote control, tv remote
+Telephone, mobile phone, cellphone, smartphone, phone, landline
+CD, compact disc, dvd, disc
+Router, wifi router
+Cup, mug, teacup
+Plate, saucer, dinner plate
+Wine Glass, goblet, wineglass
+Kettle, tea kettle, teapot
+Pot, cooking pot, saucepan, hot pot
+Knife, kitchen knife
+Sink, kitchen sink
+Faucet, tap
+Showerhead, shower head
+Bathtub, tub
+Bowl, mixing bowl, sugar bowl
+Chopsticks, chopstick
+Spoon, teaspoon, tablespoon
+chopping Board, cutting board, butcher block
+Blender, food processor
+Canned, tin can, canned food
+Barrel, cask
+Bakset, basket
+Toiletry, soap, shampoo, toothpaste, deodorant, lotion
+Cleaning Products, detergent, cleaning supplies, cleaning spray
+Towel, paper towel
+Napkin, serviette
+Tissue, kleenex, facial tissue
+Toilet Paper, toilet roll, bathroom tissue
+Converter, adapter, adaptor, power adapter
+Extention Cord, extension cord, extension lead, power strip
+Power outlet, outlet, socket, wall socket
+Banana, bananas
+Tangerine, mandarin, clementine
+Grapefruit, grapefruits
+Hamimelon, hami melon, cantaloupe
+Kiwi fruit, kiwi, kiwifruit
+Pepper, bell pepper, chili pepper, chilli, capsicum
+Corn, maize
+Eggplant, aubergine
+Green Vegetables, spinach, kale, celery, bok choy
+Nuts, peanut, almond, walnut, cashew, pistachio, chestnut
+Bread, loaf, baguette, toast
+Hamburger, burger, cheeseburger, hamburgers
+Hot dog, hotdog
+French Fries, fries
+Pasta, spaghetti, macaroni
+Dumpling, jiaozi
+Baozi, bao
+Spring Rolls, spring roll
+Meat ball, meatball, meatballs
+Sausage, sausages
+Dessert, cupcake, pastry, pudding, sundae, ice cream cone
+Rice, white rice, cooked rice
+Baseball Glove, baseball mitt
+Tennis Racket, tennis racquet, badminton racket
+Hockey Stick, hockey sticks
+Golf Club, golf clubs
+Other Balls, ping pong ball, table tennis ball, bowling ball, rugby
+Table Tennis, ping pong
+Snowboard, snowboards
+Surfboard, surfboards
+Frisbee, frisbee disc, flying disc
+Slide, playground slide
+Stuffed Toy, teddy bear, plush toy, stuffed animal
+Barbell, barbells
+Dumbbell, dumbbells, dumbbell
+Target, bullseye, dartboard
+Medal, medallion
+Binoculars, binocular, field glasses
+Guitar, acoustic guitar, electric guitar
+Violin, fiddle
+Piano, grand piano
+Drum, drums, drum kit
+Saxophone, sax
+Cymbal, cymbals
+Megaphone, bullhorn
+Glasses, eyeglasses, spectacles, sunglasses, goggles
+Gloves, mittens, mitten
+Hat, beanie, fedora
+Tie, necktie
+Backpack, rucksack, knapsack
+Handbag, shoulder bag
+Wallet, billfold
+Pen, ballpoint pen, ballpoint, ball pen, fountain pen, highlighter
+Eraser, rubber
+Ruler, straightedge, tape measure
+Scissors, shears
+Tape, scotch tape, adhesive tape
+Folder, file folder, binder
+Notepaper, notepad, writing paper, stationery
+Pencil Case, pencil box, pencil pouch
+Book, textbook, novel
+Picture, photo, photograph, painting, poster
+Frame, photo frame, picture frame
+Blackboard, chalkboard
+Whiteboard, dry erase board
+Scale, weighing scale, balance scale
+Poker Card, playing card, poker cards
+Game board, chessboard, board game
+Lifesaver, life preserver, life buoy, lifebuoy
+Ballon, balloon, hot air balloon
+Flower, bouquet, blossom
+Trash bin Can, waste basket, garbage can, trash can, rubbish bin, waste bin
+Lighter, cigarette lighter
